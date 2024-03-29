@@ -3,6 +3,7 @@ export type Event = {
   id: number;
   name: string;
   location: string;
+  lap_count: number;
 };
 
 export type Sections = { sections: number[] };

@@ -6,30 +6,71 @@
     [options]="riders"
     [(ngModel)]="selectedRider"
     optionLabel="rider_number"
-    placeholder="Select a Rider Number"
+    placeholder="Select a Rider"
   >
     <ng-template pTemplate="selectedItem">
       @if (selectedRider(); as selRider) {
-      <div>Rider Number: {{ selRider.rider_number }}</div>
+      <div>
+        Rider:
+        {{
+          selRider.rider_number +
+            " " +
+            selRider.rider_name +
+            " (" +
+            selRider.class +
+            ")"
+        }}
+      </div>
       }
     </ng-template>
+    <ng-template let-rider pTemplate="item">
+      <div class="flex align-items-center gap-2">
+        <div>
+          {{
+            rider.rider_number +
+              " " +
+              rider.rider_name +
+              " (" +
+              rider.class +
+              ")"
+          }}
+        </div>
+      </div>
+    </ng-template>
   </p-dropdown>
-  } @if(selectedRider()) {
+
+  } @if(selectedRider();as selRider) {
+
   <h2>Recorded Lap Times</h2>
 
-  @for (score of previousScores$ | async; track score.lap_number) {
-  <div>
-    <span>{{ score.lap_number }}</span>
-    <span>{{ score.lap_number }}</span>
-  </div>
-  } @empty {
-  <span>No lap times recorded for this rider</span>
-  }
+  @if((previousScores$ | async); as prevScores) {
+  <p-table
+    [value]="prevScores"
+    [tableStyle]="{
+      'min-width': 'calc(100vw - 2rem)',
+    }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Lap Number</th>
+        <th>Score</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-score>
+      <tr>
+        <td>{{ score.lap_number }}</td>
+        <td>{{ score.score }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  @if ((totalLaps$ | async); as totalLaps) {
 
+  <h3>Total Laps: {{ totalLaps }}</h3>
+  @if (totalLaps > prevScores.length) {
   <h2>Record New Lap Score</h2>
   @if ((previousScores$ | async); as prevScores) {
   <span> Lap Number: {{ prevScores.length + 1 }}</span>
-  }
+
   <div class="card flex justify-content-center">
     <p-selectButton
       [options]="scoreOptions"
@@ -45,5 +86,7 @@
       (click)="submitScore()"
     ></p-button>
   </div>
-  }
+  }} @else {
+  <h2>Recorded All Laps</h2>
+  }}}}
 </div>

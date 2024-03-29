@@ -30,6 +30,7 @@ export class ObserveComponent {
   private backend = inject(BackendService);
   private route = inject(ActivatedRoute);
 
+  totalLaps$: Observable<number>;
   submitPending = signal(false);
 
   scoreOptions = [0, 1, 2, 3, 5, 10];
@@ -63,13 +64,18 @@ export class ObserveComponent {
 
       this.previousScores$ = this.route.params.pipe(
         distinctUntilChanged(),
-        switchMap((params) =>
-          this.backend.getScores(
+        switchMap((params) => {
+          this.totalLaps$ = this.backend.getEventByID(params['event_id']).pipe(
+            map((event) => event.lap_count),
+            shareReplay(1)
+          );
+
+          return this.backend.getScores(
             params['event_id'],
             params['section_id'],
             this.selectedRider()!.rider_number
-          )
-        ),
+          );
+        }),
         tap(() => this.selectedScore.set(undefined)),
         shareReplay(1)
       );
@@ -77,7 +83,31 @@ export class ObserveComponent {
   }
 
   submitScore() {
-    localStorage.removeItem('selectedRider');
     this.submitPending.set(true);
+    this.previousScores$
+      .pipe(
+        switchMap((scores) => {
+          return this.backend.postScore({
+            event_id: +this.route.snapshot.params['event_id'],
+            section_number: +this.route.snapshot.params['section_id'],
+            rider_number: this.selectedRider()!.rider_number,
+            lap_number: scores.length + 1,
+            score: this.selectedScore()!,
+          });
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          this.selectedScore.set(undefined);
+          this.selectedRider.set(undefined);
+          this.submitPending.set(false);
+          localStorage.removeItem('selectedRider');
+        },
+        error: (err) => {
+          console.error(err);
+          this.submitPending.set(false);
+        },
+      });
   }
 }

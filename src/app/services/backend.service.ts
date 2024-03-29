@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { map } from 'rxjs';
 import { Event, Rider, Score, Sections } from 'src/models/Types';
 
 @Injectable({
@@ -12,6 +13,11 @@ export class BackendService {
   private httpGet = <T>(url: string) => this.http.get<T>(this.BASE_URL + url);
 
   getAllEvents = () => this.httpGet<Event[]>('events/all');
+
+  getEventByID = (event_id: number) =>
+    this.httpGet<Event[]>(`events/${event_id}`).pipe(
+      map((events) => events[0])
+    );
 
   getAllSections = (event_id: number) =>
     this.httpGet<Sections>(`events/${event_id}/sections/all`);
@@ -27,4 +33,12 @@ export class BackendService {
     this.httpGet<Score[]>(
       `events/${event_id}/scores?section_number=${section_number}&rider_number=${rider_number}`
     );
+
+  postScore = (score: {
+    event_id: number;
+    section_number: number;
+    rider_number: number;
+    lap_number: number;
+    score: number;
+  }) => this.http.post(`${this.BASE_URL}score`, score);
 }
