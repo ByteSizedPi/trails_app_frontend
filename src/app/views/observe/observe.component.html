@@ -1,0 +1,49 @@
+<div class="pad">
+  <h2>Rider Observations</h2>
+  @if ((riders$ | async); as riders) {
+
+  <p-dropdown
+    [options]="riders"
+    [(ngModel)]="selectedRider"
+    optionLabel="rider_number"
+    placeholder="Select a Rider Number"
+  >
+    <ng-template pTemplate="selectedItem">
+      @if (selectedRider(); as selRider) {
+      <div>Rider Number: {{ selRider.rider_number }}</div>
+      }
+    </ng-template>
+  </p-dropdown>
+  } @if(selectedRider()) {
+  <h2>Recorded Lap Times</h2>
+
+  @for (score of previousScores$ | async; track score.lap_number) {
+  <div>
+    <span>{{ score.lap_number }}</span>
+    <span>{{ score.lap_number }}</span>
+  </div>
+  } @empty {
+  <span>No lap times recorded for this rider</span>
+  }
+
+  <h2>Record New Lap Score</h2>
+  @if ((previousScores$ | async); as prevScores) {
+  <span> Lap Number: {{ prevScores.length + 1 }}</span>
+  }
+  <div class="card flex justify-content-center">
+    <p-selectButton
+      [options]="scoreOptions"
+      [(ngModel)]="selectedScore"
+      [disabled]="submitPending()"
+    ></p-selectButton>
+  </div>
+
+  <div class="card flex justify-content-center">
+    <p-button
+      label="Submit Score"
+      [disabled]="selectedScore() === undefined || submitPending()"
+      (click)="submitScore()"
+    ></p-button>
+  </div>
+  }
+</div>

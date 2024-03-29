@@ -1,1 +1,15 @@
-<h2>Events</h2>
+<div class="pad">
+  <h2>Select an Event</h2>
+  <div class="card flex justify-content-center">
+    @for (event of (allEvents$ | async); track event.id) {
+    <p-card
+      [header]="event.name"
+      [ngStyle]="{ margin: '0.5rem' }"
+      (click)="router.navigate(['events/' + event.id])"
+    >
+      <p>{{ event.event_date | date : "medium" }}</p>
+      <p>{{ event.location }}</p>
+    </p-card>
+    }
+  </div>
+</div>

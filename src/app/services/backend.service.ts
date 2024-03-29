@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Event, Rider, Score, Sections } from 'src/models/Types';
 
 @Injectable({
   providedIn: 'root',
@@ -8,9 +9,22 @@ export class BackendService {
   private readonly BASE_URL = 'http://localhost:5000/api/';
   private http = inject(HttpClient);
 
-  private httpGet = (url: string) => this.http.get(this.BASE_URL + url);
+  private httpGet = <T>(url: string) => this.http.get<T>(this.BASE_URL + url);
 
-  getAllEvents() {
-    return this.httpGet('events/all');
-  }
+  getAllEvents = () => this.httpGet<Event[]>('events/all');
+
+  getAllSections = (event_id: number) =>
+    this.httpGet<Sections>(`events/${event_id}/sections/all`);
+
+  getAllRiders = (event_id: number) =>
+    this.httpGet<Rider[]>(`events/${event_id}/riders/all`);
+
+  getScores = (
+    event_id: number,
+    section_number: number,
+    rider_number: number
+  ) =>
+    this.httpGet<Score[]>(
+      `events/${event_id}/scores?section_number=${section_number}&rider_number=${rider_number}`
+    );
 }

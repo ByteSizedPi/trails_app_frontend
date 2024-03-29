@@ -1,15 +1,14 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { BackendService } from '../../services/backend.service';
-
 @Component({
   selector: 'app-events',
-  standalone: true,
-  imports: [],
   templateUrl: './events.component.html',
   styleUrl: './events.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventsComponent {
-  constructor(private backend: BackendService) {
-    this.backend.getAllEvents().subscribe(console.log);
-  }
+  allEvents$ = this.backend.getAllEvents();
+
+  constructor(private backend: BackendService, public router: Router) {}
 }
