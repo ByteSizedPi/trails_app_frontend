@@ -6,6 +6,14 @@ export type Event = {
   lap_count: number;
 };
 
+export type InsertEvent = {
+  event_date: string;
+  event_name: string;
+  event_location: string;
+  lap_count: number;
+  sections: number;
+};
+
 export type Sections = { sections: number[] };
 
 export type Rider = {

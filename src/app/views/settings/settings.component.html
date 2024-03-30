@@ -1,1 +1,41 @@
-<p>settings works!</p>
+@if (auth()) {
+<div class="card">
+  <p-tabMenu [model]="items" [activeItem]="(activeItem$ | async)!">
+    <ng-template pTemplate="item" let-item>
+      <a
+        class="p-menuitem-link flex justify-content-between align-items-center p-3"
+        (click)="nav(item.label!)"
+      >
+        <div>
+          <span [class]="item.icon"></span>
+          <span> {{ item.label }}</span>
+        </div>
+      </a>
+    </ng-template>
+  </p-tabMenu>
+</div>
+
+<router-outlet></router-outlet>
+
+} @else {
+<div class="pad">
+  <h2 class="center">Authenticate</h2>
+  <p-password
+    [ngClass]="{
+      'ng-invalid ng-dirty': pwAttempted() && !auth(),
+      center: true
+    }"
+    [(ngModel)]="password"
+    [feedback]="false"
+  />
+  <p class="center err-msg" *ngIf="pwAttempted() && !auth()">wrong Password</p>
+  <p-button
+    class="center"
+    label="Login"
+    [disabled]="!password()"
+    (onClick)="verify()"
+  />
+</div>
+}
+
+<p-toast position="bottom-center"></p-toast>

@@ -3,6 +3,7 @@
   @if ((riders$ | async); as riders) {
 
   <p-dropdown
+    class="center"
     [options]="riders"
     [(ngModel)]="selectedRider"
     optionLabel="rider_number"
@@ -41,7 +42,7 @@
 
   } @if(selectedRider();as selRider) {
 
-  <h2>Recorded Lap Times</h2>
+  <h3>Recorded Lap Times</h3>
 
   @if((previousScores$ | async); as prevScores) {
   <p-table
@@ -65,28 +66,33 @@
   </p-table>
   @if ((totalLaps$ | async); as totalLaps) {
 
-  <h3>Total Laps: {{ totalLaps }}</h3>
-  @if (totalLaps > prevScores.length) {
-  <h2>Record New Lap Score</h2>
-  @if ((previousScores$ | async); as prevScores) {
-  <span> Lap Number: {{ prevScores.length + 1 }}</span>
+  <!-- <h4>Total Laps: {{ totalLaps }}</h4> -->
+  @if (totalLaps > prevScores.length) { @if ((previousScores$ | async); as
+  prevScores) {
+  <h3>
+    Record New Score For Lap
+    <div class="lap">
+      {{ prevScores.length + 1 }}
+    </div>
+  </h3>
+  <!-- <h4>Lap Number: {{ prevScores.length + 1 }}</h4> -->
 
-  <div class="card flex justify-content-center">
-    <p-selectButton
-      [options]="scoreOptions"
-      [(ngModel)]="selectedScore"
-      [disabled]="submitPending()"
-    ></p-selectButton>
-  </div>
+  <p-selectButton
+    class="center"
+    [options]="scoreOptions"
+    [(ngModel)]="selectedScore"
+    [disabled]="submitPending()"
+  ></p-selectButton>
 
-  <div class="card flex justify-content-center">
-    <p-button
-      label="Submit Score"
-      [disabled]="selectedScore() === undefined || submitPending()"
-      (click)="submitScore()"
-    ></p-button>
-  </div>
+  <p-button
+    class="center"
+    label="Submit Score"
+    [disabled]="selectedScore() === undefined || submitPending()"
+    (click)="submitScore()"
+  ></p-button>
   }} @else {
-  <h2>Recorded All Laps</h2>
+  <h3 class="center done-laps">All {{ totalLaps }} Laps Recorded</h3>
   }}}}
 </div>
+
+<p-toast position="bottom-center"></p-toast>

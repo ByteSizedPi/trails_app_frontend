@@ -3,18 +3,28 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TabMenuModule } from 'primeng/tabmenu';
+import { ToastModule } from 'primeng/toast';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EventsComponent } from './views/events/events.component';
 import { ObserveComponent } from './views/observe/observe.component';
 import { SectionsComponent } from './views/sections/sections.component';
+import { NewEventComponent } from './views/settings/new-event/new-event.component';
+import { SettingsComponent } from './views/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +32,8 @@ import { SectionsComponent } from './views/sections/sections.component';
     EventsComponent,
     SectionsComponent,
     ObserveComponent,
+    SettingsComponent,
+    NewEventComponent,
   ],
   imports: [
     BrowserModule,
@@ -33,10 +45,18 @@ import { SectionsComponent } from './views/sections/sections.component';
     HttpClientModule,
     DropdownModule,
     FormsModule,
+    ReactiveFormsModule,
     ButtonModule,
     TableModule,
+    PasswordModule,
+    InputTextModule,
+    FloatLabelModule,
+    CalendarModule,
+    FileUploadModule,
+    InputNumberModule,
+    ToastModule,
   ],
-  providers: [],
+  providers: [MessageService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

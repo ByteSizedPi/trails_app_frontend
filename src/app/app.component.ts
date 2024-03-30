@@ -3,9 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { filter, map } from 'rxjs';
 
-export const urlMap = new Map<string, number>()
-  .set('/events', 0)
-  .set('/settings', 1);
+const urlMap = new Map<string, number>().set('/events', 0).set('/settings', 1);
 
 @Component({
   selector: 'app-root',

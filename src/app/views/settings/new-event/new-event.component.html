@@ -1,0 +1,80 @@
+<div class="pad">
+  <form [formGroup]="formGroup" class="center column">
+    <div class="float-label">
+      <p-floatLabel>
+        <input
+          id="eventName"
+          type="text"
+          pInputText
+          formControlName="eventName"
+        />
+        <label for="eventName">Event Name</label>
+      </p-floatLabel>
+    </div>
+    <div class="float-label">
+      <p-floatLabel>
+        <input
+          id="eventLocation"
+          type="text"
+          pInputText
+          formControlName="eventLocation"
+        />
+        <label for="eventLocation">Event Location</label>
+      </p-floatLabel>
+    </div>
+
+    <div class="numbers">
+      <h4>Sections</h4>
+      <h4>Laps</h4>
+
+      <p-inputNumber
+        [style]="{ width: '6rem' }"
+        formControlName="sections"
+        [showButtons]="true"
+        inputId="vertical"
+        incrementButtonIcon="pi pi-plus"
+        buttonLayout="vertical"
+        spinnerMode="vertical"
+        decrementButtonIcon="pi pi-minus"
+        [min]="1"
+        [max]="20"
+      ></p-inputNumber>
+      <p-inputNumber
+        [style]="{ width: '6rem' }"
+        formControlName="laps"
+        [showButtons]="true"
+        buttonLayout="vertical"
+        spinnerMode="vertical"
+        inputId="vertical"
+        incrementButtonIcon="pi pi-plus"
+        decrementButtonIcon="pi pi-minus"
+        [min]="1"
+        [max]="10"
+      ></p-inputNumber>
+    </div>
+
+    <h3>Event Date</h3>
+    <p-calendar
+      class="max-w-full"
+      formControlName="eventDate"
+      [inline]="true"
+      [showWeek]="true"
+      [showTime]="true"
+    ></p-calendar>
+
+    <h3>Upload Riders List (Excel File)</h3>
+    <p-fileUpload
+      #fileUpload
+      chooseLabel="Upload"
+      accept=".xlsx, .xls"
+      [maxFileSize]="1000000"
+      [disabled]="!formGroup.valid"
+      [showCancelButton]="false"
+      uploadLabel="Create Event"
+      chooseIcon="pi pi-upload"
+      uploadIcon="pi pi-save"
+      [customUpload]="true"
+      (uploadHandler)="submit($event.files[0])"
+    />
+  </form>
+</div>

@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import {
   Observable,
   distinctUntilChanged,
@@ -29,6 +30,7 @@ import { Rider, Score } from 'src/models/Types';
 export class ObserveComponent {
   private backend = inject(BackendService);
   private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
 
   totalLaps$: Observable<number>;
   submitPending = signal(false);
@@ -47,12 +49,6 @@ export class ObserveComponent {
   previousScores$: Observable<Score[]>;
 
   constructor() {
-    if (localStorage.getItem('selectedRider')) {
-      this.selectedRider.set(
-        JSON.parse(localStorage.getItem('selectedRider')!)
-      );
-    }
-
     effect(() => {
       if (!this.selectedRider()) return;
 
@@ -97,15 +93,22 @@ export class ObserveComponent {
         })
       )
       .subscribe({
-        next: (res) => {
-          console.log(res);
+        next: () => {
           this.selectedScore.set(undefined);
           this.selectedRider.set(undefined);
           this.submitPending.set(false);
-          localStorage.removeItem('selectedRider');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Score submitted',
+          });
         },
         error: (err) => {
-          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err.error.message || 'An error occurred',
+          });
           this.submitPending.set(false);
         },
       });
