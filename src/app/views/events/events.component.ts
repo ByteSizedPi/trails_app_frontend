@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BackendService } from '../../services/backend.service';
 @Component({
@@ -8,7 +8,7 @@ import { BackendService } from '../../services/backend.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventsComponent {
+  private backend = inject(BackendService);
+  router = inject(Router);
   allEvents$ = this.backend.getUpcomingEvents();
-
-  constructor(private backend: BackendService, public router: Router) {}
 }

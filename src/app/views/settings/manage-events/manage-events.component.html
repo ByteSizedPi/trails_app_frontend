@@ -1,1 +1,52 @@
-<p>edit-events works!</p>
+<div class="pad">
+  <h2>Upcoming Events</h2>
+
+  @for (event of (upcomingEvents$ | async); track event.id) {
+  <p-card [header]="event.name" [ngStyle]="{ margin: '0.5rem' }">
+    <div class="grid">
+      <p>date</p>
+      <p class="bold">{{ event.event_date | date : "medium" }}</p>
+      <p>location</p>
+      <p class="bold">{{ event.location }}</p>
+      <p-button
+        label="Delete"
+        icon="pi pi-times"
+        severity="danger"
+        (click)="deleteEvent(event.id)"
+        [disabled]="(pendingRequest$ | async)!"
+      ></p-button>
+      <p-button
+        label="Mark as Completed"
+        icon="pi pi-check"
+        severity="success"
+        (click)="completeEvent(event.id)"
+        [disabled]="(pendingRequest$ | async)!"
+      ></p-button>
+    </div>
+  </p-card>
+  } @empty {
+  <p>No upcoming events</p>
+  }
+  <h2>Completed Events</h2>
+  @for (event of (completedEvents$ | async); track event.id) {
+  <p-card [header]="event.name" [ngStyle]="{ margin: '0.5rem' }">
+    <div class="grid">
+      <p>date</p>
+      <p class="bold">{{ event.event_date | date : "medium" }}</p>
+      <p>location</p>
+      <p class="bold">{{ event.location }}</p>
+      <p-button
+        label="Delete"
+        icon="pi pi-times"
+        severity="danger"
+        (click)="deleteEvent(event.id)"
+        [disabled]="(pendingRequest$ | async)!"
+      ></p-button>
+    </div>
+  </p-card>
+  } @empty {
+  <p>No completed events</p>
+  }
+  <p-toast position="bottom-center"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+</div>

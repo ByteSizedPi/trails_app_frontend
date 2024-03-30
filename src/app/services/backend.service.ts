@@ -15,7 +15,10 @@ export class BackendService {
   verifyAuth = (password: string) => this.httpGet(`validate/${password}`);
 
   getAllEvents = () => this.httpGet<Event[]>('events/all');
+
   getUpcomingEvents = () => this.httpGet<Event[]>('events/upcoming');
+
+  getCompletedEvents = () => this.httpGet<Event[]>('events/completed');
 
   getEventByID = (event_id: number) =>
     this.httpGet<Event[]>(`events/${event_id}`).pipe(
@@ -44,6 +47,12 @@ export class BackendService {
     lap_number: number;
     score: number;
   }) => this.http.post(`${this.BASE_URL}score`, score);
+
+  completeEvent = (event_id: number) =>
+    this.http.put(`${this.BASE_URL}event/${event_id}`, {});
+
+  deleteEvent = (event_id: number) =>
+    this.http.delete(`${this.BASE_URL}event/${event_id}`);
 
   postEvent = (event: InsertEvent, file: File) => {
     const formData = new FormData();

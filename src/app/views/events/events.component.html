@@ -7,8 +7,12 @@
       [ngStyle]="{ margin: '0.5rem' }"
       (click)="router.navigate(['events/' + event.id])"
     >
-      <p>{{ event.event_date | date : "medium" }}</p>
-      <p>{{ event.location }}</p>
+      <div class="grid">
+        <p>date</p>
+        <p class="bold">{{ event.event_date | date : "medium" }}</p>
+        <p>location</p>
+        <p class="bold">{{ event.location }}</p>
+      </div>
     </p-card>
     }
   </div>

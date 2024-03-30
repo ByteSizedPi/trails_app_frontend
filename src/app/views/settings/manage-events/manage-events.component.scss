@@ -1,0 +1,19 @@
+p {
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 8rem auto;
+  grid-gap: 1rem;
+  align-items: center;
+}
+
+.bold {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+p-button {
+  margin-top: 1rem;
+}
