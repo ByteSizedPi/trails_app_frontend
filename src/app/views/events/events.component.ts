@@ -8,7 +8,7 @@ import { BackendService } from '../../services/backend.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventsComponent {
-  allEvents$ = this.backend.getAllEvents();
+  allEvents$ = this.backend.getUpcomingEvents();
 
   constructor(private backend: BackendService, public router: Router) {}
 }

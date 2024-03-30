@@ -23,7 +23,9 @@ import { AppComponent } from './app.component';
 import { EventsComponent } from './views/events/events.component';
 import { ObserveComponent } from './views/observe/observe.component';
 import { SectionsComponent } from './views/sections/sections.component';
+import { ManageEventsComponent } from './views/settings/manage-events/manage-events.component';
 import { NewEventComponent } from './views/settings/new-event/new-event.component';
+import { RiderTemplateComponent } from './views/settings/rider-template/rider-template.component';
 import { SettingsComponent } from './views/settings/settings.component';
 
 @NgModule({
@@ -34,6 +36,8 @@ import { SettingsComponent } from './views/settings/settings.component';
     ObserveComponent,
     SettingsComponent,
     NewEventComponent,
+    ManageEventsComponent,
+    RiderTemplateComponent,
   ],
   imports: [
     BrowserModule,

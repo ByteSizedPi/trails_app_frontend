@@ -12,7 +12,8 @@ import { BackendService } from 'src/app/services/backend.service';
 
 const urlMap = new Map<string, number>()
   .set('/newevent', 0)
-  .set('/editevents', 1);
+  .set('/manageevents', 1)
+  .set('/ridertemplate', 2);
 
 @Component({
   selector: 'app-settings',
@@ -27,7 +28,7 @@ export class SettingsComponent {
 
   items: MenuItem[] = [
     { label: 'New Event', icon: 'pi pi-fw pi-plus' },
-    { label: 'Edit Events', icon: 'pi pi-fw pi-file-edit' },
+    { label: 'Manage Events', icon: 'pi pi-fw pi-file-edit' },
     { label: 'Rider Template', icon: 'pi pi-fw pi-file' },
   ];
 

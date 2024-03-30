@@ -15,6 +15,7 @@ export class BackendService {
   verifyAuth = (password: string) => this.httpGet(`validate/${password}`);
 
   getAllEvents = () => this.httpGet<Event[]>('events/all');
+  getUpcomingEvents = () => this.httpGet<Event[]>('events/upcoming');
 
   getEventByID = (event_id: number) =>
     this.httpGet<Event[]>(`events/${event_id}`).pipe(

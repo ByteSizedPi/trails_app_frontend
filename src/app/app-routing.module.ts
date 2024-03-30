@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { EventsComponent } from './views/events/events.component';
 import { ObserveComponent } from './views/observe/observe.component';
 import { SectionsComponent } from './views/sections/sections.component';
-import { EditEventsComponent } from './views/settings/edit-events/edit-events.component';
+import { ManageEventsComponent } from './views/settings/manage-events/manage-events.component';
 import { NewEventComponent } from './views/settings/new-event/new-event.component';
 import { RiderTemplateComponent } from './views/settings/rider-template/rider-template.component';
 import { SettingsComponent } from './views/settings/settings.component';
@@ -18,7 +18,7 @@ const routes: Routes = [
     component: SettingsComponent,
     children: [
       { path: 'newevent', component: NewEventComponent },
-      { path: 'editevents', component: EditEventsComponent },
+      { path: 'manageevents', component: ManageEventsComponent },
       { path: 'ridertemplate', component: RiderTemplateComponent },
     ],
   },

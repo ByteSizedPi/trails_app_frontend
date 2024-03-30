@@ -4,6 +4,7 @@ export type Event = {
   name: string;
   location: string;
   lap_count: number;
+  completed: 0 | 1;
 };
 
 export type InsertEvent = {
