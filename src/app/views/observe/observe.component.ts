@@ -52,12 +52,6 @@ export class ObserveComponent {
     effect(() => {
       if (!this.selectedRider()) return;
 
-      // store the selected rider in local storage
-      localStorage.setItem(
-        'selectedRider',
-        JSON.stringify(this.selectedRider())
-      );
-
       this.previousScores$ = this.route.params.pipe(
         distinctUntilChanged(),
         switchMap((params) => {

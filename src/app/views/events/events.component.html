@@ -8,10 +8,14 @@
       (click)="router.navigate(['events/' + event.id])"
     >
       <div class="grid">
-        <p>date</p>
+        <p>Date</p>
         <p class="bold">{{ event.event_date | date : "medium" }}</p>
-        <p>location</p>
+        <p>Location</p>
         <p class="bold">{{ event.location }}</p>
+        <p>Sections</p>
+        <p class="bold">{{ event.section_count }}</p>
+        <p>Laps</p>
+        <p class="bold">{{ event.lap_count }}</p>
       </div>
     </p-card>
     }

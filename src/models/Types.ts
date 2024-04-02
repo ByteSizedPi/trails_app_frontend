@@ -4,6 +4,7 @@ export type Event = {
   name: string;
   location: string;
   lap_count: number;
+  section_count: number;
   completed: 0 | 1;
 };
 

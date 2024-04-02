@@ -4,10 +4,14 @@
   @for (event of (upcomingEvents$ | async); track event.id) {
   <p-card [header]="event.name" [ngStyle]="{ margin: '0.5rem' }">
     <div class="grid">
-      <p>date</p>
+      <p>Date</p>
       <p class="bold">{{ event.event_date | date : "medium" }}</p>
-      <p>location</p>
+      <p>Location</p>
       <p class="bold">{{ event.location }}</p>
+      <p>Sections</p>
+      <p class="bold">{{ event.section_count }}</p>
+      <p>Laps</p>
+      <p class="bold">{{ event.lap_count }}</p>
       <p-button
         label="Delete"
         icon="pi pi-times"
@@ -31,10 +35,14 @@
   @for (event of (completedEvents$ | async); track event.id) {
   <p-card [header]="event.name" [ngStyle]="{ margin: '0.5rem' }">
     <div class="grid">
-      <p>date</p>
+      <p>Date</p>
       <p class="bold">{{ event.event_date | date : "medium" }}</p>
-      <p>location</p>
+      <p>Location</p>
       <p class="bold">{{ event.location }}</p>
+      <p>Sections</p>
+      <p class="bold">{{ event.section_count }}</p>
+      <p>Laps</p>
+      <p class="bold">{{ event.lap_count }}</p>
       <p-button
         label="Delete"
         icon="pi pi-times"

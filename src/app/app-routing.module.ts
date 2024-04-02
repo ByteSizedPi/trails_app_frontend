@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 import { EventsComponent } from './views/events/events.component';
 import { ObserveComponent } from './views/observe/observe.component';
 import { SectionsComponent } from './views/sections/sections.component';
@@ -16,6 +17,7 @@ const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+    canActivateChild: [authGuard],
     children: [
       { path: 'newevent', component: NewEventComponent },
       { path: 'manageevents', component: ManageEventsComponent },
