@@ -12,6 +12,12 @@ import { FileUpload } from 'primeng/fileupload';
 import { BackendService } from 'src/app/services/backend.service';
 import { InsertEvent } from '../../../../models/Types';
 
+const get9h00 = () => {
+  let date = new Date();
+  date.setHours(9, 0, 0, 0);
+  return date;
+};
+
 @Component({
   selector: 'app-new-event',
   templateUrl: './new-event.component.html',
@@ -27,9 +33,9 @@ export class NewEventComponent {
   formGroup = new FormGroup({
     eventName: new FormControl('', Validators.required),
     eventLocation: new FormControl('', Validators.required),
-    sections: new FormControl('', Validators.required),
-    laps: new FormControl('', Validators.required),
-    eventDate: new FormControl('', Validators.required),
+    sections: new FormControl(10, Validators.required),
+    laps: new FormControl(4, Validators.required),
+    eventDate: new FormControl<Date>(get9h00(), Validators.required),
   });
 
   constructor(

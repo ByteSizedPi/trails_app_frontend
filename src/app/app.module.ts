@@ -25,6 +25,7 @@ import { EventsComponent } from './views/events/events.component';
 import { ObserveComponent } from './views/observe/observe.component';
 import { SectionsComponent } from './views/sections/sections.component';
 import { ManageEventsComponent } from './views/settings/manage-events/manage-events.component';
+import { ResultsComponent } from './views/settings/manage-events/results/results.component';
 import { NewEventComponent } from './views/settings/new-event/new-event.component';
 import { RiderTemplateComponent } from './views/settings/rider-template/rider-template.component';
 import { SettingsComponent } from './views/settings/settings.component';
@@ -39,6 +40,7 @@ import { SettingsComponent } from './views/settings/settings.component';
     NewEventComponent,
     ManageEventsComponent,
     RiderTemplateComponent,
+    ResultsComponent,
   ],
   imports: [
     BrowserModule,

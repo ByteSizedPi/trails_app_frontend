@@ -1,7 +1,14 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs';
-import { Event, InsertEvent, Rider, Score, Sections } from 'src/models/Types';
+import {
+  Event,
+  InsertEvent,
+  ResultsSummary,
+  Rider,
+  Score,
+  Sections,
+} from 'src/models/Types';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +17,8 @@ export class BackendService {
   private readonly BASE_URL = 'http://localhost:5000/api/';
   private http = inject(HttpClient);
 
-  private httpGet = <T>(url: string) => this.http.get<T>(this.BASE_URL + url);
+  private httpGet = <T>(url: string, params = {}) =>
+    this.http.get<T>(this.BASE_URL + url, params);
 
   verifyAuth = (password: string) => this.httpGet(`validate/${password}`);
 
@@ -19,6 +27,18 @@ export class BackendService {
   getUpcomingEvents = () => this.httpGet<Event[]>('events/upcoming');
 
   getCompletedEvents = () => this.httpGet<Event[]>('events/completed');
+
+  getTemplate = () => {
+    const headers = new HttpHeaders({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    return this.httpGet<HttpResponse<File>>('template', {
+      responseType: 'blob',
+      observe: 'response',
+      headers,
+    });
+  };
 
   getEventByID = (event_id: number) =>
     this.httpGet<Event[]>(`events/${event_id}`).pipe(
@@ -39,6 +59,9 @@ export class BackendService {
     this.httpGet<Score[]>(
       `events/${event_id}/scores?section_number=${section_number}&rider_number=${rider_number}`
     );
+
+  getResultsSummary = (event_id: string) =>
+    this.httpGet<ResultsSummary[]>(`/results_summary/${event_id}`);
 
   postScore = (score: {
     event_id: number;

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { BehaviorSubject, Subject, forkJoin, switchMap } from 'rxjs';
 import { BackendService } from 'src/app/services/backend.service';
@@ -18,15 +19,16 @@ export class ManageEventsComponent {
   constructor(
     private backend: BackendService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    public router: Router
   ) {
-    this.backend.getUpcomingEvents().subscribe((events) => {
-      this.upcomingEvents$.next(events);
-    });
+    this.backend
+      .getUpcomingEvents()
+      .subscribe((events) => this.upcomingEvents$.next(events));
 
-    this.backend.getCompletedEvents().subscribe((events) => {
-      this.completedEvents$.next(events);
-    });
+    this.backend
+      .getCompletedEvents()
+      .subscribe((events) => this.completedEvents$.next(events));
   }
 
   completeEvent(event_id: number) {

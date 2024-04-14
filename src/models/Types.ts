@@ -28,3 +28,10 @@ export type Score = {
   lap_number: number;
   score: number;
 };
+
+export type ResultsSummary = {
+  class_name: string;
+  rider_name: string;
+  rider_number: string;
+  total_score: string;
+};
