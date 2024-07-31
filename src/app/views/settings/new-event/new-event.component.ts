@@ -75,6 +75,8 @@ export class NewEventComponent {
           detail: 'Event created successfully',
         });
         this.formGroup.reset();
+        this.formGroup.get('sections')!.setValue(10);
+        this.formGroup.get('laps')!.setValue(4);
         this.fileUpload()!.clear();
       },
       error: (err) => {

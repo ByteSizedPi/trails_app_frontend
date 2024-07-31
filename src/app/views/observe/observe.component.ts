@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import {
   Observable,
   distinctUntilChanged,
@@ -31,6 +31,7 @@ export class ObserveComponent {
   private backend = inject(BackendService);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   totalLaps$: Observable<number>;
   submitPending = signal(false);
@@ -106,5 +107,22 @@ export class ObserveComponent {
           this.submitPending.set(false);
         },
       });
+  }
+
+  edit() {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to edit this score?',
+      header: 'Confirm Edit',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      accept: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Confirmed',
+          detail: 'You have accepted',
+        });
+      },
+    });
   }
 }
