@@ -71,6 +71,14 @@ export class BackendService {
     score: number;
   }) => this.http.post(`${this.BASE_URL}score`, score);
 
+  editScore = (score: {
+    event_id: number;
+    section_number: number;
+    rider_number: number;
+    lap_number: number;
+    score: number;
+  }) => this.http.put(`${this.BASE_URL}score`, score);
+
   completeEvent = (event_id: number) =>
     this.http.put(`${this.BASE_URL}event/${event_id}`, {});
 

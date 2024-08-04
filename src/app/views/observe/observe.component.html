@@ -1,31 +1,18 @@
 <div class="pad">
   <h2>Rider Observations</h2>
-  @if ((riders$ | async); as riders) {
 
-  <p-dropdown
-    class="center"
-    [options]="riders"
+  @if ((riders$ | async); as riders) {
+  <h4>Search for a rider</h4>
+  <p-autoComplete
+    [forceSelection]="true"
     [(ngModel)]="selectedRider"
-    optionLabel="rider_number"
-    placeholder="Select a Rider"
+    [suggestions]="filteredRiders"
+    (completeMethod)="search($event, riders)"
+    [dropdown]="true"
+    field="rider_name"
   >
-    <ng-template pTemplate="selectedItem">
-      @if (selectedRider(); as selRider) {
-      <div>
-        Rider:
-        {{
-          selRider.rider_number +
-            " " +
-            selRider.rider_name +
-            " (" +
-            selRider.class +
-            ")"
-        }}
-      </div>
-      }
-    </ng-template>
     <ng-template let-rider pTemplate="item">
-      <div class="flex align-items-center gap-2">
+      <div>
         <div>
           {{
             rider.rider_number +
@@ -38,11 +25,23 @@
         </div>
       </div>
     </ng-template>
-  </p-dropdown>
+  </p-autoComplete>
 
-  } @if(selectedRider();as selRider) {
+  @if (selectedRider(); as selRider) { } } @if(selectedRider();as selRider) {
 
-  <h3>Recorded Lap Times</h3>
+  <div class="identifier">
+    <h3>Recorded Lap Times for:</h3>
+    <h2 id="rider">
+      {{
+        selRider.rider_number +
+          ". " +
+          selRider.rider_name +
+          " (" +
+          selRider.class +
+          ")"
+      }}
+    </h2>
+  </div>
 
   @if((previousScores$ | async); as prevScores) {
   <p-table
@@ -67,7 +66,7 @@
             label="Edit"
             icon="pi pi-pencil"
             class="p-button-rounded p-button-success"
-            (click)="edit()"
+            (click)="showEditDialog(score)"
           ></p-button>
         </td>
       </tr>
@@ -106,4 +105,47 @@
 
 <p-toast />
 
-<p-confirmDialog />
+<div class="card flex justify-content-center">
+  <p-dialog
+    header="Edit Score"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '25rem' }"
+  >
+    <div>
+      <label for="score"> New Score: </label>
+      <input
+        #editInput
+        [(ngModel)]="inputValue"
+        id="score"
+        pInputText
+        autocomplete="off"
+        type="number"
+        min="0"
+        max="10"
+      />
+      <div class="error">
+        <small
+          [style]="{
+            color: (inputValid | async) ? 'transparent' : 'var(--red-500)'
+          }"
+        >
+          Score must be between 0 and 10
+        </small>
+      </div>
+    </div>
+
+    <div class="w-100 row space-between">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        (onClick)="visible.set(false)"
+      />
+      <p-button
+        label="Save"
+        (onClick)="edit()"
+        [disabled]="!(inputValid | async)"
+      />
+    </div>
+  </p-dialog>
+</div>

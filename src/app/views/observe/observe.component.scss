@@ -14,3 +14,26 @@ p-selectButton {
 .done-laps {
   color: var(--green-500);
 }
+
+.card {
+  input {
+    margin: 0.5rem 0 1rem 0;
+  }
+}
+
+.error {
+  color: var(--red-500);
+  margin-bottom: 2rem;
+}
+
+h4 {
+  color: var(--green-500);
+}
+
+.identifier {
+  margin-top: 4rem;
+}
+
+#rider {
+  color: var(--blue-500);
+}
