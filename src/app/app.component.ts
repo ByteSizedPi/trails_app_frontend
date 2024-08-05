@@ -20,6 +20,6 @@ export class AppComponent {
 
   activeItem$ = this.router.events.pipe(
     filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-    map(({ url }) => this.items[urlMap.get('/' + url.split('/')[1])!])
+    map(({ url }) => this.items[urlMap.get('/' + url.split('/')[1]) || 0])
   );
 }

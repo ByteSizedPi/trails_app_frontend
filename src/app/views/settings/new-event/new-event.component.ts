@@ -1,9 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ModelSignal,
-  model,
-  signal,
+  inject,
   viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -25,47 +23,32 @@ const get9h00 = () => {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewEventComponent {
-  password: ModelSignal<string | undefined> = model<string>();
-  auth = signal(false);
-  pwAttempted = signal(false);
+  private backend = inject(BackendService);
+  private messageService = inject(MessageService);
   fileUpload = viewChild<FileUpload>('fileUpload');
 
   formGroup = new FormGroup({
     eventName: new FormControl('', Validators.required),
     eventLocation: new FormControl('', Validators.required),
+    password: new FormControl(''),
     sections: new FormControl(10, Validators.required),
     laps: new FormControl(4, Validators.required),
     eventDate: new FormControl<Date>(get9h00(), Validators.required),
   });
 
-  constructor(
-    private backend: BackendService,
-    private messageService: MessageService
-  ) {
-    if (localStorage.getItem('trailsAuth')) this.auth.set(true);
-  }
-
-  verify() {
-    this.auth.set(false);
-    this.backend.verifyAuth(this.password()!).subscribe((res) => {
-      if (res) {
-        this.auth.set(true);
-        localStorage.setItem('trailsAuth', 'true');
-      }
-      this.pwAttempted.set(true);
-    });
-  }
-
   submit(file: File) {
+    const getField = (field: string) => this.formGroup.get(field)!.value!;
+
     const insertEvent: InsertEvent = {
-      event_name: this.formGroup.get('eventName')!.value!,
-      event_location: this.formGroup.get('eventLocation')!.value!,
-      event_date: new Date(this.formGroup.get('eventDate')!.value!)
+      event_name: getField('eventName'),
+      event_location: getField('eventLocation'),
+      event_date: new Date(getField('eventDate'))
         .toISOString()
         .slice(0, 19)
         .replace('T', ' '),
-      lap_count: +this.formGroup.get('laps')!.value!,
-      sections: +this.formGroup.get('sections')!.value!,
+      lap_count: +getField('laps'),
+      sections: +getField('sections'),
+      password: getField('password'),
     };
     this.backend.postEvent(insertEvent, file).subscribe({
       next: () => {

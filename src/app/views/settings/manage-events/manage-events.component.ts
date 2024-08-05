@@ -118,4 +118,16 @@ export class ManageEventsComponent {
       },
     });
   }
+
+  downloadResultsSummaryExcel(event_id: number) {
+    this.backend.getResultsSummaryExcel(`${event_id}`).subscribe((response) => {
+      const url = window.URL.createObjectURL(response.body!);
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.href = url;
+      a.download = `results_event_id=${event_id}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

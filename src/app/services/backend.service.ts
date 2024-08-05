@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 import {
   Event,
   InsertEvent,
@@ -63,6 +63,12 @@ export class BackendService {
   getResultsSummary = (event_id: string) =>
     this.httpGet<ResultsSummary[]>(`/results_summary/${event_id}`);
 
+  getResultsSummaryExcel = (event_id: string) =>
+    this.httpGet<HttpResponse<File>>(`/results_summary/${event_id}/excel`, {
+      responseType: 'blob',
+      observe: 'response',
+    });
+
   postScore = (score: {
     event_id: number;
     section_number: number;
@@ -95,4 +101,12 @@ export class BackendService {
 
     return this.http.post(this.BASE_URL + 'event', formData);
   };
+
+  verifyEventPassword = (event_id: number, password: string) =>
+    this.httpGet<boolean>(`event/${event_id}/validate/${password}`).pipe(
+      tap(() => localStorage.setItem('EventPassword', password))
+    );
+
+  eventHasPassword = (event_id: number) =>
+    this.httpGet<boolean>(`event/${event_id}/has_password`);
 }

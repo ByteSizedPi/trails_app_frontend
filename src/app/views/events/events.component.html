@@ -5,7 +5,7 @@
     <p-card
       [header]="event.name"
       [ngStyle]="{ margin: '0.5rem' }"
-      (click)="router.navigate(['events/' + event.id])"
+      (click)="eventHasPassword(event.id)"
     >
       <div class="grid">
         <p>Date</p>
@@ -21,3 +21,40 @@
     }
   </div>
 </div>
+
+<p-dialog
+  header="Password Required"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '25rem' }"
+>
+  <div>
+    <label for="password"> Enter Password</label>
+    <input
+      #pwInput
+      [(ngModel)]="inputValue"
+      id="password"
+      pInputText
+      autocomplete="off"
+      type="password"
+    />
+    <div class="error">
+      <small
+        [style]="{
+          color: (error$ | async) ? 'var(--red-500)' : 'transparent'
+        }"
+      >
+        Password is incorrect
+      </small>
+    </div>
+  </div>
+
+  <div class="w-100 row space-between">
+    <p-button label="Cancel" severity="secondary" (onClick)="hideDialog()" />
+    <p-button
+      label="Verify"
+      (onClick)="verifyPassword()"
+      [disabled]="!(inputValue() && !(error$ | async))"
+    />
+  </div>
+</p-dialog>

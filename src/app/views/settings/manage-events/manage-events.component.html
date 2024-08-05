@@ -49,6 +49,12 @@
         (onClick)="router.navigate(['settings/results', event.id])"
       >
       </p-button>
+      <p-button
+        severity="success"
+        label="Download Results"
+        (onClick)="downloadResultsSummaryExcel(event.id)"
+      >
+      </p-button>
     </div>
   </p-card>
   } @empty {

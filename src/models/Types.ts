@@ -14,6 +14,7 @@ export type InsertEvent = {
   event_location: string;
   lap_count: number;
   sections: number;
+  password?: string;
 };
 
 export type Sections = { sections: number[] };
