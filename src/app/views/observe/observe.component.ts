@@ -179,4 +179,7 @@ export class ObserveComponent {
         },
       });
   }
+
+  riderToString = ({ rider_number, rider_name, class: cls }: Rider) =>
+    `[${rider_number}] [${cls}] ${rider_name}`;
 }

@@ -2,150 +2,141 @@
   <h2>Rider Observations</h2>
 
   @if ((riders$ | async); as riders) {
-  <h4>Search for a rider</h4>
-  <p-autoComplete
-    [forceSelection]="true"
-    [(ngModel)]="selectedRider"
-    [suggestions]="filteredRiders"
-    (completeMethod)="search($event, riders)"
-    [dropdown]="true"
-    field="rider_name"
-  >
-    <ng-template let-rider pTemplate="item">
-      <div>
+
+  <p-floatLabel>
+    <p-autoComplete
+      [forceSelection]="true"
+      [dropdown]="true"
+      [optionLabel]="riderToString"
+      [(ngModel)]="selectedRider"
+      [suggestions]="filteredRiders"
+      (completeMethod)="search($event, riders)"
+      inputId="rider-search"
+    >
+      <ng-template let-rider pTemplate="item">
         <div>
-          {{
-            rider.rider_number +
-              " " +
-              rider.rider_name +
-              " (" +
-              rider.class +
-              ")"
-          }}
+          <div>
+            {{
+              rider.rider_number +
+                " " +
+                rider.rider_name +
+                " (" +
+                rider.class +
+                ")"
+            }}
+          </div>
         </div>
-      </div>
-    </ng-template>
-  </p-autoComplete>
+      </ng-template>
+    </p-autoComplete>
+    <label for="rider-search">Search for a rider</label>
+  </p-floatLabel>
 
-  @if (selectedRider(); as selRider) { } } @if(selectedRider();as selRider) {
+  }
+  
+  @if(selectedRider(); as selRider) {
+    @if((previousScores$ | async); as prevScores) {
+      @if ((totalLaps$ | async); as totalLaps) {
+        @if (totalLaps > prevScores.length) {
+          @if ((previousScores$ | async); as prevScores) {
+            <h3>
+              Record New Score For Lap
+              <div class="lap">
+                {{ prevScores.length + 1 }}
+              </div>
+            </h3>
 
-  <div class="identifier">
-    <h3>Recorded Lap Times for:</h3>
-    <h2 id="rider">
-      {{
-        selRider.rider_number +
-          ". " +
-          selRider.rider_name +
-          " (" +
-          selRider.class +
-          ")"
-      }}
-    </h2>
-  </div>
+            <p-selectButton
+              class="center"
+              [options]="scoreOptions"
+              [(ngModel)]="selectedScore"
+              [disabled]="submitPending()"
+            ></p-selectButton>
 
-  @if((previousScores$ | async); as prevScores) {
-  <p-table
-    [value]="prevScores"
-    [tableStyle]="{
-      'min-width': 'calc(100vw - 2rem)',
-    }"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Lap Number</th>
-        <th>Score</th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-score>
-      <tr>
-        <td>{{ score.lap_number }}</td>
-        <td>{{ score.score }}</td>
-        <td>
-          <p-button
-            label="Edit"
-            icon="pi pi-pencil"
-            class="p-button-rounded p-button-success"
-            (click)="showEditDialog(score)"
-          ></p-button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-  @if ((totalLaps$ | async); as totalLaps) {
+            <p-button
+              class="center"
+              label="Submit Score"
+              [disabled]="selectedScore() === undefined || submitPending()"
+              (click)="submitScore()"
+            ></p-button>
+          }
+        } @else {
+          <h3 class="center done-laps">All {{ totalLaps }} Laps Recorded</h3>
+        }
+      }
 
-  <!-- <h4>Total Laps: {{ totalLaps }}</h4> -->
-  @if (totalLaps > prevScores.length) { @if ((previousScores$ | async); as
-  prevScores) {
-  <h3>
-    Record New Score For Lap
-    <div class="lap">
-      {{ prevScores.length + 1 }}
-    </div>
-  </h3>
-  <!-- <h4>Lap Number: {{ prevScores.length + 1 }}</h4> -->
+      <h3>Recorded Lap Times</h3>
 
-  <p-selectButton
-    class="center"
-    [options]="scoreOptions"
-    [(ngModel)]="selectedScore"
-    [disabled]="submitPending()"
-  ></p-selectButton>
-
-  <p-button
-    class="center"
-    label="Submit Score"
-    [disabled]="selectedScore() === undefined || submitPending()"
-    (click)="submitScore()"
-  ></p-button>
-  }} @else {
-  <h3 class="center done-laps">All {{ totalLaps }} Laps Recorded</h3>
-  }}}}
+      <p-table
+        [value]="prevScores"
+        [tableStyle]="{ 'min-width': 'calc(100vw - 2rem)'}"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Lap Number</th>
+            <th>Score</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-score>
+          <tr>
+            <td>{{ score.lap_number }}</td>
+            <td>{{ score.score }}</td>
+            <td>
+              <p-button
+                label="Edit"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-success"
+                (click)="showEditDialog(score)"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  }
 </div>
 
 <p-toast />
 
-<div class="card flex justify-content-center">
-  <p-dialog
-    header="Edit Score"
-    [modal]="true"
-    [(visible)]="visible"
-    [style]="{ width: '25rem' }"
-  >
-    <div>
-      <label for="score"> New Score: </label>
-      <input
-        #editInput
-        [(ngModel)]="inputValue"
-        id="score"
-        pInputText
-        autocomplete="off"
-        type="number"
-        min="0"
-        max="10"
-      />
-      <div class="error">
-        <small
-          [style]="{
-            color: (inputValid | async) ? 'transparent' : 'var(--red-500)'
-          }"
-        >
-          Score must be between 0 and 10
-        </small>
-      </div>
+<p-dialog
+  header="Edit Score"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '25rem' }"
+>
+  <div>
+    <label for="score"> New Score: </label>
+    <input
+      #editInput
+      [(ngModel)]="inputValue"
+      id="score"
+      pInputText
+      autocomplete="off"
+      type="number"
+      min="0"
+      max="10"
+    />
+    <div class="error">
+      <small
+        [style]="{
+          color: (inputValid | async) ? 'transparent' : 'var(--red-500)'
+        }"
+      >
+        Score must be between 0 and 10
+      </small>
     </div>
+  </div>
 
-    <div class="w-100 row space-between">
-      <p-button
-        label="Cancel"
-        severity="secondary"
-        (onClick)="visible.set(false)"
-      />
-      <p-button
-        label="Save"
-        (onClick)="edit()"
-        [disabled]="!(inputValid | async)"
-      />
-    </div>
-  </p-dialog>
-</div>
+  <div class="w-100 row space-between">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (onClick)="visible.set(false)"
+    />
+    <p-button
+      label="Save"
+      (onClick)="edit()"
+      [disabled]="!(inputValid | async)"
+    />
+  </div>
+</p-dialog>

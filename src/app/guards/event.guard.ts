@@ -7,8 +7,6 @@ export const eventGuard: CanActivateFn = (route, state) => {
   const backend = inject(BackendService);
   const router = inject(Router);
 
-  console.log(route, state);
-
   const eventID = route.params['event_id'];
 
   // make sure we are on the events/:event_id route and that the eventID exists

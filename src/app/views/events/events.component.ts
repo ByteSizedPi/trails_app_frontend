@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, switchMap } from 'rxjs';
 import { BackendService } from '../../services/backend.service';
 @Component({
   selector: 'app-events',
@@ -32,23 +32,29 @@ export class EventsComponent {
     effect(() => {
       if (this.inputValue()) this.error$.next(false);
     });
-
-    // effect(() => {
-    //   this.visible();
-    //   console.log(this.selectedEvent());
-    // });
   }
 
   eventHasPassword(eventID: number) {
-    this.backend.eventHasPassword(eventID).subscribe((hasPassword) => {
-      if (!hasPassword) {
-        this.router.navigate([`/events/${eventID}`]);
-      } else {
+    this.backend
+      .eventHasPassword(eventID)
+      .pipe(
+        switchMap((hasPassword) =>
+          hasPassword
+            ? this.backend.verifyEventPassword(
+                eventID,
+                localStorage.getItem('EventPassword') || ''
+              )
+            : this.router.navigate([`/events/${eventID}`])
+        )
+      )
+      .subscribe((passDlg) => {
+        if (passDlg) return this.router.navigate([`/events/${eventID}`]);
+
         this.visible.set(true);
         setTimeout(() => this.pwInput().nativeElement.focus(), 200);
         this.selectedEvent.set(eventID);
-      }
-    });
+        return;
+      });
   }
 
   hideDialog() {

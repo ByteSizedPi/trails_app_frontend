@@ -95,9 +95,8 @@ export class BackendService {
     const formData = new FormData();
     formData.append('file', file);
 
-    Object.keys(event).forEach((key) => {
-      formData.append(key, `${event[key as keyof InsertEvent]}`);
-    });
+    let keys = Object.keys(event) as (keyof InsertEvent)[];
+    keys.forEach((key) => formData.append(key, `${event[key]}`));
 
     return this.http.post(this.BASE_URL + 'event', formData);
   };
