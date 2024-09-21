@@ -3,10 +3,24 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, filter, map, switchMap } from 'rxjs';
 import { BackendService } from '../../services/backend.service';
 
+type EvWrapper = { event_id: number };
+
 @Component({
   selector: 'app-sections',
-  templateUrl: './sections.component.html',
-  styleUrl: './sections.component.scss',
+  template: `
+    <div class="pad">
+      <h2>Select a Section to Observe</h2>
+      @for (event of (sections$ | async); track event) {
+      <p-card
+        [header]="'Section ' + event"
+        class="p-d-md-none p-flex-row card"
+        [ngStyle]="{ margin: '0.5rem' }"
+        (click)="router.navigate(['section/' + event], { relativeTo: route })"
+      >
+      </p-card>
+      }
+    </div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionsComponent {
@@ -15,10 +29,9 @@ export class SectionsComponent {
   router = inject(Router);
 
   sections$ = this.route.params.pipe(
-    map((params) => params['event_id']),
-    filter((event_id) => !!event_id),
+    filter((eventID): eventID is EvWrapper => !!eventID['event_id']),
     distinctUntilChanged(),
-    switchMap((event_id) => this.backend.getAllSections(event_id)),
-    map(({ sections }) => sections)
+    switchMap(({ event_id: id }) => this.backend.getAllSections(id)),
+    map(({ sections: sec }) => sec)
   );
 }

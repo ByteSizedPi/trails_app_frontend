@@ -75,11 +75,12 @@
 
     <h3>Upload Riders List (Excel File)</h3>
     <p-fileUpload
+      [style.pointerEvents]="fileUploadInProgress() ? 'none' : 'auto'"
       #fileUpload
       chooseLabel="Upload"
       accept=".xlsx, .xls"
       [maxFileSize]="1000000"
-      [disabled]="!formGroup.valid"
+      [disabled]="!formGroup.valid || fileUploadInProgress()"
       [showCancelButton]="false"
       uploadLabel="Create Event"
       chooseIcon="pi pi-upload"

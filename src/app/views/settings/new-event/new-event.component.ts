@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  signal,
   viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -25,11 +26,13 @@ const get9h00 = () => {
 export class NewEventComponent {
   private backend = inject(BackendService);
   private messageService = inject(MessageService);
+
   fileUpload = viewChild<FileUpload>('fileUpload');
+  fileUploadInProgress = signal(false);
 
   formGroup = new FormGroup({
     eventName: new FormControl('', Validators.required),
-    eventLocation: new FormControl('', Validators.required),
+    eventLocation: new FormControl(''),
     password: new FormControl(''),
     sections: new FormControl(10, Validators.required),
     laps: new FormControl(4, Validators.required),
@@ -39,6 +42,7 @@ export class NewEventComponent {
   submit(file: File) {
     const getField = (field: string) => this.formGroup.get(field)!.value!;
 
+    // map event data to InsertEvent
     const insertEvent: InsertEvent = {
       event_name: getField('eventName'),
       event_location: getField('eventLocation'),
@@ -50,6 +54,12 @@ export class NewEventComponent {
       sections: +getField('sections'),
       password: getField('password'),
     };
+
+    // file upload in progress
+    this.fileUploadInProgress.set(true);
+    console.log('no click on button');
+
+    // post event to backend
     this.backend.postEvent(insertEvent, file).subscribe({
       next: () => {
         this.messageService.add({
@@ -61,6 +71,8 @@ export class NewEventComponent {
         this.formGroup.get('sections')!.setValue(10);
         this.formGroup.get('laps')!.setValue(4);
         this.fileUpload()!.clear();
+        this.fileUploadInProgress.set(false);
+        console.log('click button enabled');
       },
       error: (err) => {
         this.messageService.add({
@@ -68,6 +80,8 @@ export class NewEventComponent {
           summary: 'Error',
           detail: err.error.error || 'An error occurred',
         });
+
+        this.fileUploadInProgress.set(false);
       },
     });
   }
