@@ -14,7 +14,7 @@ import {
   providedIn: 'root',
 })
 export class BackendService {
-  // private readonly BASE_URL = 'http://197.189.237.186:5000/api/';
+  // private readonly BASE_URL = 'http://localhost:3000/api/';
   private readonly BASE_URL = 'https://trialsobserver.co.za/api/';
   private http = inject(HttpClient);
 

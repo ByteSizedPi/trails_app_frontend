@@ -38,14 +38,13 @@ export class EventsComponent {
     this.backend
       .eventHasPassword(eventID)
       .pipe(
-        switchMap((hasPassword) =>
-          hasPassword
-            ? this.backend.verifyEventPassword(
-                eventID,
-                localStorage.getItem('EventPassword') || ''
-              )
-            : this.router.navigate([`/events/${eventID}`])
-        )
+        switchMap((hasPassword) => {
+          if (!hasPassword) return this.router.navigate([`/events/${eventID}`]);
+          let storedPW = localStorage.getItem('EventPassword');
+          if (storedPW)
+            return this.backend.verifyEventPassword(eventID, storedPW);
+          return [false];
+        })
       )
       .subscribe((passDlg) => {
         if (passDlg) return this.router.navigate([`/events/${eventID}`]);
