@@ -46,10 +46,7 @@ export class NewEventComponent {
     const insertEvent: InsertEvent = {
       event_name: getField('eventName'),
       event_location: getField('eventLocation'),
-      event_date: new Date(getField('eventDate'))
-        .toISOString()
-        .slice(0, 19)
-        .replace('T', ' '),
+      event_date: this.formatDateForMySQL(getField('eventDate')),
       lap_count: +getField('laps'),
       sections: +getField('sections'),
       password: getField('password'),
@@ -57,7 +54,6 @@ export class NewEventComponent {
 
     // file upload in progress
     this.fileUploadInProgress.set(true);
-    console.log('no click on button');
 
     // post event to backend
     this.backend.postEvent(insertEvent, file).subscribe({
@@ -72,7 +68,6 @@ export class NewEventComponent {
         this.formGroup.get('laps')!.setValue(4);
         this.fileUpload()!.clear();
         this.fileUploadInProgress.set(false);
-        console.log('click button enabled');
       },
       error: (err) => {
         this.messageService.add({
@@ -84,5 +79,21 @@ export class NewEventComponent {
         this.fileUploadInProgress.set(false);
       },
     });
+  }
+
+  private formatDateForMySQL(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
+  timeSet() {
+    const date = this.formGroup.get('eventDate')!.value!;
+    console.log(this.formatDateForMySQL(date));
   }
 }

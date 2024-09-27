@@ -14,8 +14,8 @@ import {
   providedIn: 'root',
 })
 export class BackendService {
-  private readonly BASE_URL = 'http://197.189.237.186:5000/api/';
-  // private readonly BASE_URL = "http://localhost:5000/api/";
+  // private readonly BASE_URL = 'http://197.189.237.186:5000/api/';
+  private readonly BASE_URL = 'https://trialsobserver.co.za/api/';
   private http = inject(HttpClient);
 
   private httpGet = <T>(url: string, params = {}) =>
@@ -62,10 +62,10 @@ export class BackendService {
     );
 
   getResultsSummary = (event_id: string) =>
-    this.httpGet<ResultsSummary[]>(`/results_summary/${event_id}`);
+    this.httpGet<ResultsSummary[]>(`results_summary/${event_id}`);
 
   getResultsSummaryExcel = (event_id: string) =>
-    this.httpGet<HttpResponse<File>>(`/results_summary/${event_id}/excel`, {
+    this.httpGet<HttpResponse<File>>(`results_summary/${event_id}/excel`, {
       responseType: 'blob',
       observe: 'response',
     });
