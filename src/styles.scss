@@ -36,3 +36,8 @@ body {
 .space-between {
   justify-content: space-between;
 }
+
+.invalid input {
+  color: red;
+  border-color: red;
+}

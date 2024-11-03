@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { map, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable, of, tap } from 'rxjs';
 import {
   Event,
   InsertEvent,
@@ -17,17 +17,29 @@ export class BackendService {
   // private readonly BASE_URL = 'http://localhost:3000/api/';
   private readonly BASE_URL = 'https://trialsobserver.co.za/api/';
   private http = inject(HttpClient);
+  private cacheMap = new Map<string, any>();
 
-  private httpGet = <T>(url: string, params = {}) =>
-    this.http.get<T>(this.BASE_URL + url, params);
+  private httpGet = <T>(
+    url: string,
+    params = {},
+    mustCache = true
+  ): Observable<T> => {
+    let result = this.cacheMap.get(url) as T;
+    return mustCache && result !== undefined
+      ? of(result)
+      : this.http
+          .get<T>(this.BASE_URL + url, params)
+          .pipe(tap((result) => this.cacheMap.set(url, result)));
+  };
 
   verifyAuth = (password: string) => this.httpGet(`validate/${password}`);
 
-  getAllEvents = () => this.httpGet<Event[]>('events/all');
+  getAllEvents = () => this.httpGet<Event[]>('events/all', {}, false);
 
-  getUpcomingEvents = () => this.httpGet<Event[]>('events/upcoming');
+  getUpcomingEvents = () => this.httpGet<Event[]>('events/upcoming', {}, false);
 
-  getCompletedEvents = () => this.httpGet<Event[]>('events/completed');
+  getCompletedEvents = () =>
+    this.httpGet<Event[]>('events/completed', {}, false);
 
   getTemplate = () => {
     const headers = new HttpHeaders({
@@ -58,7 +70,9 @@ export class BackendService {
     rider_number: number
   ) =>
     this.httpGet<Score[]>(
-      `events/${event_id}/scores?section_number=${section_number}&rider_number=${rider_number}`
+      `events/${event_id}/scores?section_number=${section_number}&rider_number=${rider_number}`,
+      {},
+      false
     );
 
   getResultsSummary = (event_id: string) =>

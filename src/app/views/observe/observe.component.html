@@ -4,11 +4,18 @@
   @if ((riders$ | async); as riders) {
 
   <p-floatLabel>
-    <p-autoComplete
+    <p-inputNumber
+      inputId="integeronly"
+      [(ngModel)]="selectedRiderNumber"
+      [class]="(riderValid | async) ? undefined : 'invalid'"
+    />
+
+    <!-- <p-autoComplete
       [forceSelection]="true"
       [dropdown]="true"
       [optionLabel]="riderToString"
       [(ngModel)]="selectedRider"
+      type="number"
       [suggestions]="filteredRiders"
       (completeMethod)="search($event, riders)"
       inputId="rider-search"
@@ -27,73 +34,66 @@
           </div>
         </div>
       </ng-template>
-    </p-autoComplete>
-    <label for="rider-search">Search for a rider</label>
+    </p-autoComplete> -->
+    <label for="rider-search">Select a rider number</label>
   </p-floatLabel>
 
-  }
-  
-  @if(selectedRider(); as selRider) {
-    @if((previousScores$ | async); as prevScores) {
-      @if ((totalLaps$ | async); as totalLaps) {
-        @if (totalLaps > prevScores.length) {
-          @if ((previousScores$ | async); as prevScores) {
-            <h3>
-              Record New Score For Lap
-              <div class="lap">
-                {{ prevScores.length + 1 }}
-              </div>
-            </h3>
+  } @if(riderValid | async; as selRider) { @if((previousScores$ | async); as
+  prevScores) { @if ((totalLaps$ | async); as totalLaps) { @if (totalLaps >
+  prevScores.length) { @if ((previousScores$ | async); as prevScores) {
+  <h3>
+    Record New Score For Lap
+    <div class="lap">
+      {{ prevScores.length + 1 }}
+    </div>
+  </h3>
 
-            <p-selectButton
-              class="center"
-              [options]="scoreOptions"
-              [(ngModel)]="selectedScore"
-              [disabled]="submitPending()"
-            ></p-selectButton>
+  <p-selectButton
+    class="center"
+    [options]="scoreOptions"
+    [(ngModel)]="selectedScore"
+    [disabled]="submitPending()"
+  ></p-selectButton>
 
-            <p-button
-              class="center"
-              label="Submit Score"
-              [disabled]="selectedScore() === undefined || submitPending()"
-              (click)="submitScore()"
-            ></p-button>
-          }
-        } @else {
-          <h3 class="center done-laps">All {{ totalLaps }} Laps Recorded</h3>
-        }
-      }
+  <p-button
+    class="center"
+    label="Submit Score"
+    [disabled]="selectedScore() === undefined || submitPending()"
+    (click)="submitScore()"
+  ></p-button>
+  } } @else {
+  <h3 class="center done-laps">All {{ totalLaps }} Laps Recorded</h3>
+  } }
 
-      <h3>Recorded Lap Times</h3>
+  <h3>Recorded Lap Times</h3>
 
-      <p-table
-        [value]="prevScores"
-        [tableStyle]="{ 'min-width': 'calc(100vw - 2rem)'}"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Lap Number</th>
-            <th>Score</th>
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-score>
-          <tr>
-            <td>{{ score.lap_number }}</td>
-            <td>{{ score.score }}</td>
-            <td>
-              <p-button
-                label="Edit"
-                icon="pi pi-pencil"
-                class="p-button-rounded p-button-success"
-                (click)="showEditDialog(score)"
-              ></p-button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
-  }
+  <p-table
+    [value]="prevScores"
+    [tableStyle]="{ 'min-width': 'calc(100vw - 2rem)' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Lap Number</th>
+        <th>Score</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-score>
+      <tr>
+        <td>{{ score.lap_number }}</td>
+        <td>{{ score.score }}</td>
+        <td>
+          <p-button
+            label="Edit"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success"
+            (click)="showEditDialog(score)"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  } }
 </div>
 
 <p-toast />

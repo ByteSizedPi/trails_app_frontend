@@ -9,12 +9,13 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import {
   Observable,
   Subject,
+  combineLatest,
   distinctUntilChanged,
   filter,
   map,
@@ -50,7 +51,18 @@ export class ObserveComponent {
     distinctUntilChanged(),
     switchMap((section_id) => this.backend.getAllRiders(section_id))
   );
-  selectedRider: ModelSignal<Rider | undefined> = model<Rider>();
+
+  // selectedRider: ModelSignal<Rider | undefined> = model<Rider>();
+  selectedRiderNumber = model<number>();
+  riderValid = combineLatest([
+    toObservable(this.selectedRiderNumber),
+    this.riders$,
+  ]).pipe(
+    map(([number, riders]) => {
+      if (!number) return undefined;
+      return riders.find(({ rider_number: num }) => num === number);
+    })
+  );
 
   previousScores$: Observable<Score[]>;
 
@@ -63,7 +75,7 @@ export class ObserveComponent {
 
   constructor() {
     effect(() => {
-      if (this.selectedRider()) this.refreshPage();
+      if (this.selectedRiderNumber()) this.refreshPage();
     });
 
     effect(() => {
@@ -72,16 +84,14 @@ export class ObserveComponent {
     });
   }
 
-  search(event: AutoCompleteCompleteEvent, riders: Rider[]) {
-    this.filteredRiders = riders.filter(
-      ({ rider_name, rider_number }) =>
-        rider_name
-          .toLowerCase()
-          .trim()
-          .includes(event.query.toLowerCase().trim()) ||
-        rider_number.toString().includes(event.query)
-    );
-  }
+  // search(event: AutoCompleteCompleteEvent, riders: Rider[]) {
+  //   this.filteredRiders = riders.filter((rider) =>
+  //     this.riderToString(rider)
+  //       .toLowerCase()
+  //       .trim()
+  //       .includes(event.query.toLowerCase().trim())
+  //   );
+  // }
 
   refreshPage() {
     // get previous scores
@@ -101,7 +111,7 @@ export class ObserveComponent {
         return this.backend.getScores(
           params['event_id'],
           params['section_id'],
-          this.selectedRider()!.rider_number
+          this.selectedRiderNumber()!
         );
       }),
       tap(() => this.selectedScore.set(undefined)),
@@ -117,7 +127,7 @@ export class ObserveComponent {
           return this.backend.postScore({
             event_id: +this.route.snapshot.params['event_id'],
             section_number: +this.route.snapshot.params['section_id'],
-            rider_number: this.selectedRider()!.rider_number,
+            rider_number: this.selectedRiderNumber()!,
             lap_number: scores.length + 1,
             score: this.selectedScore()!,
           });
@@ -126,13 +136,13 @@ export class ObserveComponent {
       .subscribe({
         next: () => {
           this.selectedScore.set(undefined);
-          this.selectedRider.set(undefined);
           this.submitPending.set(false);
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
             detail: 'Score submitted',
           });
+          this.refreshPage();
         },
         error: (err) => {
           this.messageService.add({
@@ -156,7 +166,7 @@ export class ObserveComponent {
       .editScore({
         event_id: +this.route.snapshot.params['event_id'],
         section_number: +this.route.snapshot.params['section_id'],
-        rider_number: this.selectedRider()!.rider_number,
+        rider_number: this.selectedRiderNumber()!,
         lap_number: this.scoreBeingEdited()!.lap_number,
         score: this.inputValue()!,
       })
@@ -181,5 +191,5 @@ export class ObserveComponent {
   }
 
   riderToString = ({ rider_number, rider_name, class: cls }: Rider) =>
-    `[${rider_number}] [${cls}] ${rider_name}`;
+    `${rider_number} ${rider_name} (${cls})`;
 }

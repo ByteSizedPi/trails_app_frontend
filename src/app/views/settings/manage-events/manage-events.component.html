@@ -5,25 +5,32 @@
   <p-card [header]="event.name" [ngStyle]="{ margin: '0.5rem' }">
     <div class="grid">
       <p>Date</p>
-      <p class="bold">{{ event.event_date | date : "medium" }}</p>
+      <p class="bold">{{ event.event_date | date : "short" }}</p>
+      @if (event.location) {
       <p>Location</p>
       <p class="bold">{{ event.location }}</p>
+      }
       <p>Sections</p>
       <p class="bold">{{ event.section_count }}</p>
       <p>Laps</p>
       <p class="bold">{{ event.lap_count }}</p>
       <p-button
-        label="Delete"
-        icon="pi pi-times"
-        severity="danger"
-        (click)="deleteEvent(event.id)"
-        [disabled]="(pendingRequest$ | async)!"
-      ></p-button>
+        label="Results"
+        (onClick)="router.navigate(['settings/results', event.id])"
+      />
+
       <p-button
         label="Mark as Completed"
         icon="pi pi-check"
         severity="success"
         (click)="completeEvent(event.id)"
+        [disabled]="(pendingRequest$ | async)!"
+      ></p-button>
+      <p-button
+        label="Delete"
+        icon="pi pi-times"
+        severity="danger"
+        (click)="deleteEvent(event.id)"
         [disabled]="(pendingRequest$ | async)!"
       ></p-button>
     </div>
