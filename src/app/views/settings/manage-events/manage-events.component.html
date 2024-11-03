@@ -26,6 +26,7 @@
         (click)="completeEvent(event.id)"
         [disabled]="(pendingRequest$ | async)!"
       ></p-button>
+
       <p-button
         label="Delete"
         icon="pi pi-times"
@@ -62,6 +63,14 @@
         (onClick)="downloadResultsSummaryExcel(event.id)"
       >
       </p-button>
+
+      <p-button
+        label="Delete"
+        icon="pi pi-times"
+        severity="danger"
+        (click)="deleteEvent(event.id)"
+        [disabled]="(pendingRequest$ | async)!"
+      ></p-button>
     </div>
   </p-card>
   } @empty {
