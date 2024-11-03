@@ -1,0 +1,1 @@
+ scp -r ./dist/trails-frontend/* trialsob@197.189.237.186:/home/trialsob/public_html/
