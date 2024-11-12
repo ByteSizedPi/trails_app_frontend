@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -32,43 +32,36 @@ import { NewEventComponent } from './views/settings/new-event/new-event.componen
 import { RiderTemplateComponent } from './views/settings/rider-template/rider-template.component';
 import { SettingsComponent } from './views/settings/settings.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    EventsComponent,
-    SectionsComponent,
-    ObserveComponent,
-    SettingsComponent,
-    NewEventComponent,
-    ManageEventsComponent,
-    RiderTemplateComponent,
-    ResultsComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    TabMenuModule,
-    CardModule,
-    BrowserAnimationsModule,
-    SelectButtonModule,
-    HttpClientModule,
-    DropdownModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    TableModule,
-    PasswordModule,
-    InputTextModule,
-    FloatLabelModule,
-    CalendarModule,
-    FileUploadModule,
-    InputNumberModule,
-    ToastModule,
-    ConfirmDialogModule,
-    DialogModule,
-    AutoCompleteModule,
-  ],
-  providers: [MessageService, ConfirmationService],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [
+        AppComponent,
+        EventsComponent,
+        SectionsComponent,
+        ObserveComponent,
+        SettingsComponent,
+        NewEventComponent,
+        ManageEventsComponent,
+        RiderTemplateComponent,
+        ResultsComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        TabMenuModule,
+        CardModule,
+        BrowserAnimationsModule,
+        SelectButtonModule,
+        DropdownModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        TableModule,
+        PasswordModule,
+        InputTextModule,
+        FloatLabelModule,
+        CalendarModule,
+        FileUploadModule,
+        InputNumberModule,
+        ToastModule,
+        ConfirmDialogModule,
+        DialogModule,
+        AutoCompleteModule], providers: [MessageService, ConfirmationService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {}
