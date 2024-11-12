@@ -4,18 +4,17 @@
   @if ((riders$ | async); as riders) {
 
   <p-floatLabel>
-    <p-inputNumber
-      inputId="integeronly"
-      [(ngModel)]="selectedRiderNumber"
-      [class]="(riderValid | async) ? undefined : 'invalid'"
-    />
+    <!-- <p-inputNumber
+        inputId="integeronly"
+        [(ngModel)]="selectedRiderNumber"
+        [class]="(riderValid | async) ? undefined : 'invalid'"
+      /> -->
 
-    <!-- <p-autoComplete
+    <p-autoComplete
       [forceSelection]="true"
       [dropdown]="true"
       [optionLabel]="riderToString"
       [(ngModel)]="selectedRider"
-      type="number"
       [suggestions]="filteredRiders"
       (completeMethod)="search($event, riders)"
       inputId="rider-search"
@@ -34,13 +33,12 @@
           </div>
         </div>
       </ng-template>
-    </p-autoComplete> -->
+    </p-autoComplete>
     <label for="rider-search">Select a rider number</label>
   </p-floatLabel>
 
-  } @if(riderValid | async; as selRider) { @if((previousScores$ | async); as
-  prevScores) { @if ((totalLaps$ | async); as totalLaps) { @if (totalLaps >
-  prevScores.length) { @if ((previousScores$ | async); as prevScores) {
+  } @if (previousScores$ | async; as prevScores) {
+  <!-- @if (totalLaps() <= (prevScores?.length ?? 0)) { -->
   <h3>
     Record New Score For Lap
     <div class="lap">
@@ -59,11 +57,12 @@
     class="center"
     label="Submit Score"
     [disabled]="selectedScore() === undefined || submitPending()"
-    (click)="submitScore()"
+    (click)="submitScore(prevScores.length + 1)"
   ></p-button>
-  } } @else {
+
+  <!-- } } @else {
   <h3 class="center done-laps">All {{ totalLaps }} Laps Recorded</h3>
-  } }
+  } -->
 
   <h3>Recorded Lap Times</h3>
 
@@ -93,7 +92,8 @@
       </tr>
     </ng-template>
   </p-table>
-  } }
+
+  }
 </div>
 
 <p-toast />
@@ -119,7 +119,7 @@
     <div class="error">
       <small
         [style]="{
-          color: (inputValid | async) ? 'transparent' : 'var(--red-500)'
+          color: inputValid() ? 'transparent' : 'var(--red-500)'
         }"
       >
         Score must be between 0 and 10
@@ -133,10 +133,6 @@
       severity="secondary"
       (onClick)="visible.set(false)"
     />
-    <p-button
-      label="Save"
-      (onClick)="edit()"
-      [disabled]="!(inputValid | async)"
-    />
+    <p-button label="Save" (onClick)="edit()" [disabled]="!inputValid()" />
   </div>
 </p-dialog>

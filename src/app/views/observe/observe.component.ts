@@ -1,9 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
-  ModelSignal,
-  effect,
   inject,
   model,
   signal,
@@ -12,19 +11,22 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import {
-  Observable,
-  Subject,
-  combineLatest,
   distinctUntilChanged,
   filter,
   map,
+  merge,
+  of,
   shareReplay,
+  Subject,
   switchMap,
   tap,
 } from 'rxjs';
 import { BackendService } from 'src/app/services/backend.service';
 import { Rider, Score } from 'src/models/Types';
+
+export type ObserveParams = { event_id: string; section_id: string };
 
 @Component({
   selector: 'app-observe',
@@ -39,120 +41,92 @@ export class ObserveComponent {
 
   filteredRiders: Rider[] = [];
 
-  totalLaps$: Observable<number>;
+  totalLaps = signal<string | undefined>(undefined);
   submitPending = signal(false);
 
   scoreOptions = [0, 1, 2, 3, 5, 10];
-  selectedScore: ModelSignal<number | undefined> = model<number>();
+  selectedScore = model<number>();
 
   riders$ = this.route.params.pipe(
+    filter((params) => !!params['event_id']),
     map((params) => params['event_id']),
-    filter((event_id) => !!event_id),
     distinctUntilChanged(),
-    switchMap((section_id) => this.backend.getAllRiders(section_id))
+    tap((event_id) => {
+      this.totalLaps.set(event_id);
+    }),
+    switchMap((event_id) => this.backend.getAllRiders(event_id))
   );
 
-  // selectedRider: ModelSignal<Rider | undefined> = model<Rider>();
-  selectedRiderNumber = model<number>();
-  riderValid = combineLatest([
-    toObservable(this.selectedRiderNumber),
-    this.riders$,
-  ]).pipe(
-    map(([number, riders]) => {
-      if (!number) return undefined;
-      return riders.find(({ rider_number: num }) => num === number);
-    })
-  );
+  selectedRider = model<Rider | undefined>();
+  loadScores$ = new Subject<Rider>();
 
-  previousScores$: Observable<Score[]>;
+  previousScores$ = merge(
+    toObservable(this.selectedRider),
+    this.loadScores$
+  ).pipe(
+    switchMap((rider) => {
+      if (rider === undefined || rider === null) return of(undefined);
+
+      const { event_id, section_id } = this.route.snapshot
+        .params as ObserveParams;
+
+      return this.backend.getScores(+event_id, +section_id, rider.rider_number);
+    }),
+    shareReplay(1)
+  );
 
   // dialog related
   visible = signal(false);
   inputValue = model<number>();
   scoreBeingEdited = signal<Score | undefined>(undefined);
-  inputValid = new Subject<boolean>();
   editInputEl = viewChild.required<ElementRef<HTMLInputElement>>('editInput');
 
-  constructor() {
-    effect(() => {
-      if (this.selectedRiderNumber()) this.refreshPage();
-    });
+  inputValid = computed(() => {
+    const val = this.inputValue();
+    return val === undefined ? false : val >= 0 && val <= 10;
+  });
 
-    effect(() => {
-      let value = this.inputValue() ?? 0;
-      this.inputValid.next(value >= 0 && value <= 10);
-    });
-  }
-
-  // search(event: AutoCompleteCompleteEvent, riders: Rider[]) {
-  //   this.filteredRiders = riders.filter((rider) =>
-  //     this.riderToString(rider)
-  //       .toLowerCase()
-  //       .trim()
-  //       .includes(event.query.toLowerCase().trim())
-  //   );
-  // }
-
-  refreshPage() {
-    // get previous scores
-    this.previousScores$ = this.route.params.pipe(
-      // don't refresh if route params don't change
-      distinctUntilChanged(),
-
-      // get scores
-      switchMap((params) => {
-        // set the max number of laps to stop the user from entering more than the max
-        this.totalLaps$ = this.backend.getEventByID(params['event_id']).pipe(
-          map((event) => event.lap_count),
-          shareReplay(1)
-        );
-
-        // get scores based on the selected rider
-        return this.backend.getScores(
-          params['event_id'],
-          params['section_id'],
-          this.selectedRiderNumber()!
-        );
-      }),
-      tap(() => this.selectedScore.set(undefined)),
-      shareReplay(1)
+  search(event: AutoCompleteCompleteEvent, riders: Rider[]) {
+    this.filteredRiders = riders.filter((rider) =>
+      this.riderToString(rider)
+        .toLowerCase()
+        .trim()
+        .includes(event.query.toLowerCase().trim())
     );
   }
 
-  submitScore() {
+  submitScore(lap_number: number) {
     this.submitPending.set(true);
-    this.previousScores$
-      .pipe(
-        switchMap((scores) => {
-          return this.backend.postScore({
-            event_id: +this.route.snapshot.params['event_id'],
-            section_number: +this.route.snapshot.params['section_id'],
-            rider_number: this.selectedRiderNumber()!,
-            lap_number: scores.length + 1,
-            score: this.selectedScore()!,
-          });
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.selectedScore.set(undefined);
-          this.submitPending.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Score submitted',
-          });
-          this.refreshPage();
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: err.error.message || 'An error occurred',
-          });
-          this.submitPending.set(false);
-        },
-      });
+
+    const inputScore = {
+      event_id: +this.route.snapshot.params['event_id'],
+      section_number: +this.route.snapshot.params['section_id'],
+      rider_number: this.selectedRider()!.rider_number,
+      lap_number,
+      score: this.selectedScore()!,
+    };
+
+    this.backend.postScore(inputScore).subscribe({
+      next: () => {
+        this.selectedScore.set(undefined);
+        this.submitPending.set(false);
+        const rider = this.selectedRider();
+        if (rider) this.loadScores$.next(rider);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Score submitted',
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error.message || 'An error occurred',
+        });
+        this.submitPending.set(false);
+      },
+    });
   }
 
   showEditDialog(score: Score) {
@@ -162,32 +136,32 @@ export class ObserveComponent {
   }
 
   edit() {
-    this.backend
-      .editScore({
-        event_id: +this.route.snapshot.params['event_id'],
-        section_number: +this.route.snapshot.params['section_id'],
-        rider_number: this.selectedRiderNumber()!,
-        lap_number: this.scoreBeingEdited()!.lap_number,
-        score: this.inputValue()!,
-      })
-      .subscribe({
-        next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Score updated successfully',
-          });
-          this.visible.set(false);
-          this.refreshPage();
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: err.error.message || 'An error occurred please try again',
-          });
-        },
-      });
+    const editScore = {
+      event_id: +this.route.snapshot.params['event_id'],
+      section_number: +this.route.snapshot.params['section_id'],
+      rider_number: this.selectedRider()!.rider_number,
+      lap_number: this.scoreBeingEdited()!.lap_number,
+      score: this.inputValue()!,
+    };
+
+    this.backend.editScore(editScore).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Score updated successfully',
+        });
+        this.visible.set(false);
+        // this.refreshPage();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error.message || 'An error occurred please try again',
+        });
+      },
+    });
   }
 
   riderToString = ({ rider_number, rider_name, class: cls }: Rider) =>
