@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { map, Observable, of, tap } from "rxjs";
+import { environment } from "src/environments/environment.development";
 import {
   Event,
   InsertEvent,
@@ -14,8 +15,7 @@ import {
   providedIn: "root",
 })
 export class BackendService {
-  private readonly BASE_URL = "http://localhost:3000/api/";
-  // private readonly BASE_URL = 'https://trialsobserver.co.za/api/';
+  private readonly BASE_URL = environment.BASE_URL;
   private http = inject(HttpClient);
   private cacheMap = new Map<string, any>();
 
