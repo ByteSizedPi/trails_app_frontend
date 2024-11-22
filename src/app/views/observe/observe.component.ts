@@ -7,11 +7,11 @@ import {
   model,
   signal,
   viewChild,
-} from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+} from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
+import { MessageService } from "primeng/api";
+import { AutoComplete, AutoCompleteCompleteEvent } from "primeng/autocomplete";
 import {
   distinctUntilChanged,
   filter,
@@ -21,17 +21,16 @@ import {
   shareReplay,
   Subject,
   switchMap,
-  tap,
-} from 'rxjs';
-import { BackendService } from 'src/app/services/backend.service';
-import { Rider, Score } from 'src/models/Types';
+} from "rxjs";
+import { BackendService } from "src/app/services/backend.service";
+import { Rider, Score } from "src/models/Types";
 
 export type ObserveParams = { event_id: string; section_id: string };
 
 @Component({
-  selector: 'app-observe',
-  templateUrl: './observe.component.html',
-  styleUrl: './observe.component.scss',
+  selector: "app-observe",
+  templateUrl: "./observe.component.html",
+  styleUrl: "./observe.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ObserveComponent {
@@ -39,33 +38,44 @@ export class ObserveComponent {
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
 
+  private rider = viewChild(AutoComplete);
+
   filteredRiders: Rider[] = [];
-
-  totalLaps = signal<string | undefined>(undefined);
-  submitPending = signal(false);
-
   scoreOptions = [0, 1, 2, 3, 5, 10];
+
+  submitPending = signal(false);
   selectedScore = model<number>();
 
-  riders$ = this.route.params.pipe(
-    filter((params) => !!params['event_id']),
-    map((params) => params['event_id']),
+  private _route = this.route.params.pipe(
+    filter((params) => !!params["event_id"]),
+    map((params) => params["event_id"]),
     distinctUntilChanged(),
-    tap((event_id) => {
-      this.totalLaps.set(event_id);
-    }),
+    shareReplay(1)
+  );
+
+  riders$ = this._route.pipe(
     switchMap((event_id) => this.backend.getAllRiders(event_id))
   );
 
+  totalLaps$ = this._route.pipe(
+    switchMap((event_id) => this.backend.getEventByID(event_id)),
+    map(({ lap_count: laps }) => laps),
+    shareReplay(1)
+  );
+
   selectedRider = model<Rider | undefined>();
-  loadScores$ = new Subject<Rider>();
+  reloadScores$ = new Subject<Rider>();
 
   previousScores$ = merge(
     toObservable(this.selectedRider),
-    this.loadScores$
+    this.reloadScores$
   ).pipe(
     switchMap((rider) => {
       if (rider === undefined || rider === null) return of(undefined);
+
+      setTimeout(() => {
+        this.rider()!.inputEL?.nativeElement.blur();
+      }, 100);
 
       const { event_id, section_id } = this.route.snapshot
         .params as ObserveParams;
@@ -77,12 +87,12 @@ export class ObserveComponent {
 
   // dialog related
   visible = signal(false);
-  inputValue = model<number>();
+  editScore = model<number>();
   scoreBeingEdited = signal<Score | undefined>(undefined);
-  editInputEl = viewChild.required<ElementRef<HTMLInputElement>>('editInput');
+  editInputEl = viewChild.required<ElementRef<HTMLInputElement>>("editInput");
 
   inputValid = computed(() => {
-    const val = this.inputValue();
+    const val = this.editScore();
     return val === undefined ? false : val >= 0 && val <= 10;
   });
 
@@ -99,8 +109,8 @@ export class ObserveComponent {
     this.submitPending.set(true);
 
     const inputScore = {
-      event_id: +this.route.snapshot.params['event_id'],
-      section_number: +this.route.snapshot.params['section_id'],
+      event_id: +this.route.snapshot.params["event_id"],
+      section_number: +this.route.snapshot.params["section_id"],
       rider_number: this.selectedRider()!.rider_number,
       lap_number,
       score: this.selectedScore()!,
@@ -109,20 +119,22 @@ export class ObserveComponent {
     this.backend.postScore(inputScore).subscribe({
       next: () => {
         this.selectedScore.set(undefined);
+        this.selectedRider.set(undefined);
         this.submitPending.set(false);
-        const rider = this.selectedRider();
-        if (rider) this.loadScores$.next(rider);
+
         this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Score submitted',
+          severity: "success",
+          summary: "Success",
+          detail: "Score submitted",
         });
+
+        setTimeout(() => this.rider()!.inputEL?.nativeElement.focus(), 100);
       },
       error: (err) => {
         this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.error.message || 'An error occurred',
+          severity: "error",
+          summary: "Error",
+          detail: err.error.message || "An error occurred",
         });
         this.submitPending.set(false);
       },
@@ -132,33 +144,35 @@ export class ObserveComponent {
   showEditDialog(score: Score) {
     this.scoreBeingEdited.set(score);
     this.visible.set(true);
-    setTimeout(() => this.editInputEl().nativeElement.focus(), 100);
+    // setTimeout(() => this.editInputEl().nativeElement.focus(), 100);
   }
 
   edit() {
     const editScore = {
-      event_id: +this.route.snapshot.params['event_id'],
-      section_number: +this.route.snapshot.params['section_id'],
+      event_id: +this.route.snapshot.params["event_id"],
+      section_number: +this.route.snapshot.params["section_id"],
       rider_number: this.selectedRider()!.rider_number,
       lap_number: this.scoreBeingEdited()!.lap_number,
-      score: this.inputValue()!,
+      score: this.editScore()!,
     };
 
     this.backend.editScore(editScore).subscribe({
       next: () => {
         this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Score updated successfully',
+          severity: "success",
+          summary: "Success",
+          detail: "Score updated successfully",
         });
         this.visible.set(false);
-        // this.refreshPage();
+        const rider = this.selectedRider();
+        if (rider) this.reloadScores$.next(rider);
+        console.log("edited");
       },
       error: (err) => {
         this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.error.message || 'An error occurred please try again',
+          severity: "error",
+          summary: "Error",
+          detail: err.error.message || "An error occurred please try again",
         });
       },
     });

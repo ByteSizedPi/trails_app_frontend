@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { map, Observable, of, tap } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
+import { inject, Injectable } from "@angular/core";
+import { map, Observable, of, tap } from "rxjs";
 import {
   Event,
   InsertEvent,
@@ -8,14 +8,14 @@ import {
   Rider,
   Score,
   Sections,
-} from 'src/models/Types';
+} from "src/models/Types";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class BackendService {
-  // private readonly BASE_URL = 'http://localhost:3000/api/';
-  private readonly BASE_URL = 'https://trialsobserver.co.za/api/';
+  private readonly BASE_URL = "http://localhost:3000/api/";
+  // private readonly BASE_URL = 'https://trialsobserver.co.za/api/';
   private http = inject(HttpClient);
   private cacheMap = new Map<string, any>();
 
@@ -34,21 +34,21 @@ export class BackendService {
 
   verifyAuth = (password: string) => this.httpGet(`validate/${password}`);
 
-  getAllEvents = () => this.httpGet<Event[]>('events/all', {}, false);
+  getAllEvents = () => this.httpGet<Event[]>("events/all", {}, false);
 
-  getUpcomingEvents = () => this.httpGet<Event[]>('events/upcoming', {}, false);
+  getUpcomingEvents = () => this.httpGet<Event[]>("events/upcoming", {}, false);
 
   getCompletedEvents = () =>
-    this.httpGet<Event[]>('events/completed', {}, false);
+    this.httpGet<Event[]>("events/completed", {}, false);
 
   getTemplate = () => {
     const headers = new HttpHeaders({
-      'Content-Type':
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    return this.httpGet<HttpResponse<File>>('template', {
-      responseType: 'blob',
-      observe: 'response',
+    return this.httpGet<HttpResponse<File>>("template", {
+      responseType: "blob",
+      observe: "response",
       headers,
     });
   };
@@ -79,9 +79,9 @@ export class BackendService {
     this.httpGet<ResultsSummary[]>(`results_summary/${event_id}`);
 
   getResultsSummaryExcel = (event_id: string) =>
-    this.httpGet<HttpResponse<File>>(`results_summary/${event_id}/excel`, {
-      responseType: 'blob',
-      observe: 'response',
+    this.httpGet<HttpResponse<Blob>>(`results_summary/${event_id}/xlsx`, {
+      responseType: "blob" as "json",
+      observe: "response",
     });
 
   postScore = (score: {
@@ -108,17 +108,17 @@ export class BackendService {
 
   postEvent = (event: InsertEvent, file: File) => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     let keys = Object.keys(event) as (keyof InsertEvent)[];
     keys.forEach((key) => formData.append(key, `${event[key]}`));
 
-    return this.http.post(this.BASE_URL + 'event', formData);
+    return this.http.post(this.BASE_URL + "event", formData);
   };
 
   verifyEventPassword = (event_id: number, password: string) =>
     this.httpGet<boolean>(`event/${event_id}/validate/${password}`).pipe(
-      tap(() => localStorage.setItem('EventPassword', password))
+      tap(() => localStorage.setItem("EventPassword", password))
     );
 
   eventHasPassword = (event_id: number) =>
