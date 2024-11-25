@@ -1,1 +1,3 @@
- scp -r ./dist/trails-frontend/* trialsob@197.189.237.186:/home/trialsob/public_html/
+ssh trialsob@197.189.237.186 'rm -r /home/trialsob/public_html/'
+scp -r ./dist/trails-frontend/ trialsob@197.189.237.186:/home/trialsob/public_html/
+ng build --configuration=production

@@ -1,23 +1,25 @@
 <div class="pad">
   <h2>Select an Event</h2>
   <div class="card flex justify-content-center">
-    @for (event of (allEvents$ | async); track event.id) {
-    <p-card
-      [header]="event.name"
-      [ngStyle]="{ margin: '0.5rem' }"
-      (click)="eventHasPassword(event.id)"
-    >
-      <div class="grid">
-        <p>Date</p>
-        <p class="bold">{{ event.event_date | date : "medium" }}</p>
-        <p>Location</p>
-        <p class="bold">{{ event.location }}</p>
-        <p>Sections</p>
-        <p class="bold">{{ event.section_count }}</p>
-        <p>Laps</p>
-        <p class="bold">{{ event.lap_count }}</p>
-      </div>
-    </p-card>
+    @for (event of allEvents$ | async; track event.id) {
+      <p-card
+        [header]="event.name"
+        [ngStyle]="{ margin: '0.5rem' }"
+        (click)="eventHasPassword(event.id)"
+      >
+        <div class="grid">
+          <p>Date</p>
+          <p class="bold">{{ event.event_date | date: "medium" }}</p>
+          <p>Location</p>
+          <p class="bold">{{ event.location }}</p>
+          <p>Sections</p>
+          <p class="bold">{{ event.section_count }}</p>
+          <p>Laps</p>
+          <p class="bold">{{ event.lap_count }}</p>
+        </div>
+      </p-card>
+    } @empty {
+      <h3>No Events</h3>
     }
   </div>
 </div>
@@ -41,7 +43,7 @@
     <div class="error">
       <small
         [style]="{
-          color: (error$ | async) ? 'var(--red-500)' : 'transparent'
+          color: (error$ | async) ? 'var(--red-500)' : 'transparent',
         }"
       >
         Password is incorrect
